@@ -36,11 +36,17 @@ void MonoFrame::monoFlow()
 
     featureDetection(prev_frame_gray, prev_pnts);
     featureTracking(prev_frame_gray, current_frame_gray, prev_pnts, current_pnts, status);
-    E = cv::findEssentialMat(current_pnts, prev_pnts, camera_matrix, cv::RANSAC, 0.999, 1.0, mask);
-    //cv::recoverPose(E, current_pnts, prev_pnts, camera_matrix, R, t, mask); 
-    cv::recoverPose(E, current_pnts, prev_pnts, camera_matrix, R, t, 10, mask, triangulated_pnts); 
+    E = cv::findEssentialMat(current_pnts, prev_pnts, camera_matrix, cv::RANSAC, 0.999, 
+                            1.0, mask);
 
-    std::cout << triangulated_pnts.data << std::endl;
+    /*********************************************************/
+    /* Here, checkout if the 4D points are [x, y, z, scalar] */
+    //cv::recoverPose(E, current_pnts, prev_pnts, camera_matrix, R, t, mask); 
+    cv::recoverPose(E, current_pnts, prev_pnts, camera_matrix, R, t, 10, mask, 
+                    triangulated_pnts); 
+    /*********************************************************/
+
+    std::cout << triangulated_pnts.size() << std::endl;
 
     //if (!R_world.data){
         //R_world = R.clone();
@@ -48,7 +54,6 @@ void MonoFrame::monoFlow()
     //} else {
         //t_world = t_world + scale * (R * t);
         //R_world = R * R_world;
-
 }
 
 void MonoFrame::featureTracking(cv::Mat image1, cv::Mat image2, 

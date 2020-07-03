@@ -4,14 +4,12 @@ using namespace std;
 
 int main(int argc, char ** argv)
 {
-    // if (argc != 2)
-    // {
-	// 			cerr << "Usage: ./mono_slam path_to_images" << endl;
-    // }
+    if (argc != 2)
+    {
+				cerr << "Usage: ./mono_slam path_to_images" << endl;
+    }
 
-    // string image_dir = argv[1];
-    string image_dir = "../../kitti_test/image_2";
-
+    string image_dir = argv[1];
     char image_name[200];
     cv::Mat current_frame;
 
