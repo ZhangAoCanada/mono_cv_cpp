@@ -2,7 +2,7 @@
 
 std::string CAMINTRIN = "../intrinsic.txt";
 double s = 0.5;
-int FAST_THRES = 40;
+int FAST_THRES = 10;
 
 namespace Mono_Slam
 {
@@ -56,8 +56,33 @@ void MonoFrame::monoFlow()
     featureTracking(prev_frame_gray, current_frame_gray, prev_show_pnts, current_show_pnts, status);
     E = cv::findEssentialMat(current_pnts, prev_pnts, camera_matrix, cv::RANSAC, 0.999, 
                             1.0, mask);
-    cv::recoverPose(E, current_pnts, prev_pnts, camera_matrix, R, t, mask); 
+    cv::recoverPose(E, current_pnts, prev_pnts, camera_matrix, R, t, mask);
 
+    RMatToMaxAngles(R);
+
+    // position of camera
+    if ( t.at<double>(2) > FORWARD_TRANSLATION_THRESHOLD && max_angle <= MAX_TURN_ANGLE) {
+        pointcloudFlow();
+        t_world = t_world + scale * (R_world * t);
+        R_world = R * R_world;
+        cameraPositionFlow();
+        prev_frame = current_frame.clone();
+    }
+    
+}
+
+void MonoFrame::cameraPositionFlow()
+{
+    x = int(t_world.at<double>(0)) + TRAJECTORY_SIZE/2;
+    z = int(t_world.at<double>(2)) + TOP_OFFSET;
+
+    cv::circle(draw, cv::Point(x, z), 1, CV_RGB(255,0,0), 1);
+
+    cv::imshow("sequence", draw);   
+}
+
+void MonoFrame::pointcloudFlow()
+{
     // get projection matrix
     cv::hconcat(R, t, P2);
     cv::hconcat(cv::Mat::eye(3, 3, CV_64FC1), cv::Mat::zeros(3, 1, CV_64FC1), P1);
@@ -90,21 +115,29 @@ void MonoFrame::monoFlow()
             cv::circle(draw, cv::Point(x, z), 1, CV_RGB(255,255,255), 1);
         }
     }
-    
-    // position of camera
-    if ( t.at<double>(2) > FORWARD_TRANSLATION_THRESHOLD) {
-        t_world = t_world + scale * (R_world * t);
-        R_world = R * R_world;
-        prev_frame = current_frame.clone();
+}
+
+void MonoFrame::RMatToMaxAngles(cv::Mat & R)
+{    
+    float sy = sqrt(R.at<double>(0,0) * R.at<double>(0,0) +  R.at<double>(1,0) * R.at<double>(1,0) );
+
+    bool singular = sy < 1e-6; // If
+
+    double x, y, z;
+    if (!singular)
+    {
+        x = atan2(R.at<double>(2,1) , R.at<double>(2,2));
+        y = atan2(-R.at<double>(2,0), sy);
+        z = atan2(R.at<double>(1,0), R.at<double>(0,0));
     }
-    
-    x = int(t_world.at<double>(0)) + TRAJECTORY_SIZE/2;
-    z = int(t_world.at<double>(2)) + TOP_OFFSET;
+    else
+    {
+        x = atan2(-R.at<double>(1,2), R.at<double>(1,1));
+        y = atan2(-R.at<double>(2,0), sy);
+        z = 0;
+    }
 
-    cv::circle(draw, cv::Point(x, z), 1, CV_RGB(255,0,0), 1);
-
-    cv::imshow("sequence", draw);
-
+    max_angle = std::max(std::abs(z), std::max(std::abs(x), std::abs(y)));
 }
 
 void MonoFrame::featureTracking(cv::Mat image1, cv::Mat image2, 

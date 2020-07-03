@@ -24,10 +24,11 @@ namespace Mono_Slam
 #define TRAJECTORY_SIZE 600
 #define TOP_OFFSET 50
 #define KEYPOINTS_NUM 3000
-#define FORWARD_TRANSLATION_THRESHOLD 0.1
+#define FORWARD_TRANSLATION_THRESHOLD 0.05
+#define MAX_TURN_ANGLE 3.141593/2
 
-#define KEYPOINTS_SHOW 100
-#define PCL_DISTANCE_UPPER 80
+#define KEYPOINTS_SHOW 50
+#define PCL_DISTANCE_UPPER 50
 #define PCL_DISTANCE_LOWER 10
 
 class MonoFrame
@@ -39,6 +40,9 @@ public:
 protected:
     void readCameraIntrinsic();
     void monoFlow();
+    void pointcloudFlow();
+    void cameraPositionFlow();
+    void RMatToMaxAngles(cv::Mat & R);
     void featureDetection(cv::Mat image, std::vector<cv::Point2f> & points, 
                         std::vector<cv::Point2f> & points_show);
     void featureTracking(cv::Mat image1, cv::Mat image2, std::vector<cv::Point2f> & points1, 
@@ -63,6 +67,7 @@ protected:
     cv::Mat R;
     cv::Mat t;
     cv::Mat mask;
+    double max_angle;
 
     cv::Mat P1;
     cv::Mat P2;
