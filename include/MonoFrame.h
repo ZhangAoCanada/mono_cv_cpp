@@ -13,28 +13,41 @@
 #include <algorithm>
 #include <iterator>
 #include <ctime>
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <string>
 
 namespace Mono_Slam
 {
+
+#define TRAJECTORY_SIZE 600
+#define TOP_OFFSET 50
+#define KEYPOINTS_NUM 3000
+#define FORWARD_TRANSLATION_THRESHOLD 0.1
+
+#define KEYPOINTS_SHOW 100
+#define PCL_DISTANCE_UPPER 80
+#define PCL_DISTANCE_LOWER 10
+
 class MonoFrame
 {
 public:
     MonoFrame();
-    void showImage(cv::Mat image);
     void operator()(cv::InputArray image);
 
 protected:
     void readCameraIntrinsic();
     void monoFlow();
-    void featureDetection(cv::Mat image, std::vector<cv::Point2f> & points);
+    void featureDetection(cv::Mat image, std::vector<cv::Point2f> & points, 
+                        std::vector<cv::Point2f> & points_show);
     void featureTracking(cv::Mat image1, cv::Mat image2, std::vector<cv::Point2f> & points1, 
                         std::vector<cv::Point2f> & points2, std::vector<uchar> & status);
 
     std::vector<cv::Point2f> prev_pnts;
     std::vector<cv::Point2f> current_pnts;
+    std::vector<cv::Point2f> prev_show_pnts;
+    std::vector<cv::Point2f> current_show_pnts;
     std::vector<uchar> status;
 
     cv::Mat prev_frame;
@@ -51,9 +64,21 @@ protected:
     cv::Mat t;
     cv::Mat mask;
 
+    cv::Mat P1;
+    cv::Mat P2;
+
+    int fast_threshold;
+    bool nonmaxSuppression;
+    cv::Ptr<cv::FastFeatureDetector> detector;
+
     cv::Mat R_world;
     cv::Mat t_world;
-    
+    int x;
+    int y;
+    int z;
+
+    cv::Mat draw;
+
 };
 }
 
