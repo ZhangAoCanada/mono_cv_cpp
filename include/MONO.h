@@ -14,9 +14,6 @@ namespace Mono_Slam
 {
 #define NUM_FRAMES 4500
 
-#define IMAGE_WIDTH 960
-#define IMAGE_HEIGHT 540
-
 class MonoFrame;
 
 }
