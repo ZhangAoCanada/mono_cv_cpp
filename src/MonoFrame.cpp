@@ -61,10 +61,10 @@ void MonoFrame::monoFlow()
     RMatToMaxAngles(R);
 
     // position of camera
-    if ( t.at<double>(2) > FORWARD_TRANSLATION_THRESHOLD && max_angle <= MAX_TURN_ANGLE) {
-        pointcloudFlow();
-        t_world = t_world + scale * (R_world * t);
-        R_world = R * R_world;
+    if ( t.at<double>(2) >= FORWARD_TRANSLATION_THRESHOLD && max_angle <= MAX_TURN_ANGLE) {
+        if (prev_show_pnts.size() != 0 && current_show_pnts.size() != 0){
+            pointcloudFlow();
+        }
         cameraPositionFlow();
         prev_frame = current_frame.clone();
     }
@@ -73,6 +73,9 @@ void MonoFrame::monoFlow()
 
 void MonoFrame::cameraPositionFlow()
 {
+    t_world = t_world + scale * (R_world * t);
+    R_world = R * R_world;
+
     x = int(t_world.at<double>(0)) + TRAJECTORY_SIZE/2;
     z = int(t_world.at<double>(2)) + TOP_OFFSET;
 
@@ -104,16 +107,19 @@ void MonoFrame::pointcloudFlow()
     }
 
     // convert [x, y, z, w] to [x, y, z]
-    pnts3D.rowRange(0, 3).convertTo(transformed_pnts, CV_64FC1);
-    transformed_pnts = scale * (R_world * transformed_pnts);
-    for (int i=0; i<pnts3D.cols; i++){
+    pnts3D.rowRange(0, 3).convertTo(pnts3D, CV_64FC1);
+    // don't know why, but it works.
+    cv::flip(pnts3D, pnts3D, 0);
+    transformed_pnts = scale * (R_world * pnts3D);
+    for (int i=0; i<transformed_pnts.cols; i++){
         x = int(transformed_pnts.at<double>(0, i));
         y = int(transformed_pnts.at<double>(1, i));
         z = int(transformed_pnts.at<double>(2, i));
         // remove too far and too close points
         if (std::sqrt(std::pow(x,2) + std::pow(z,2)) <= PCL_DISTANCE_UPPER &&
             std::sqrt(std::pow(x,2) + std::pow(z,2)) >= PCL_DISTANCE_LOWER &&
-            z >= 0){
+            pnts3D.at<double>(2, i) > 0)
+        {
             x = x + int(t_world.at<double>(0)) + TRAJECTORY_SIZE/2;
             z = z + int(t_world.at<double>(2)) + TOP_OFFSET;
 
