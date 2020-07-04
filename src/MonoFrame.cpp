@@ -76,7 +76,7 @@ void MonoFrame::cameraPositionFlow()
     x = int(t_world.at<double>(0)) + TRAJECTORY_SIZE/2;
     z = int(t_world.at<double>(2)) + TOP_OFFSET;
 
-    //x = TRAJECTORY_SIZE - x;
+    // because the image shown with cv is upsidedown
     z = TRAJECTORY_SIZE - z;
 
     cv::circle(draw, cv::Point(x, z), 1, CV_RGB(255,0,0), 1);
@@ -112,11 +112,12 @@ void MonoFrame::pointcloudFlow()
         z = int(transformed_pnts.at<double>(2, i));
         // remove too far and too close points
         if (std::sqrt(std::pow(x,2) + std::pow(z,2)) <= PCL_DISTANCE_UPPER &&
-            std::sqrt(std::pow(x,2) + std::pow(z,2)) >= PCL_DISTANCE_LOWER){
+            std::sqrt(std::pow(x,2) + std::pow(z,2)) >= PCL_DISTANCE_LOWER &&
+            z >= 0){
             x = x + int(t_world.at<double>(0)) + TRAJECTORY_SIZE/2;
             z = z + int(t_world.at<double>(2)) + TOP_OFFSET;
 
-            //x = TRAJECTORY_SIZE - x;
+            // because the image shown with cv is upsidedown
             z = TRAJECTORY_SIZE - z;
             cv::circle(draw, cv::Point(x, z), 1, CV_RGB(255,255,255), 1);
         }

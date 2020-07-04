@@ -56,6 +56,10 @@ string
 MONO.h
 /Users/aozhang/Documents/mono_cv_cpp/src/MONO.h
 
+/Users/aozhang/Documents/mono_cv_cpp/src/MonoFrame.cpp
+MonoFrame.h
+/Users/aozhang/Documents/mono_cv_cpp/src/MonoFrame.h
+
 /usr/local/Cellar/opencv/4.3.0_5/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp
 /usr/local/Cellar/opencv/4.3.0_5/include/opencv4/opencv2/opencv2/core.hpp
