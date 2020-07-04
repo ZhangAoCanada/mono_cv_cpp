@@ -1,7 +1,7 @@
 #include "MonoFrame.h"
 
 std::string CAMINTRIN = "../intrinsic.txt";
-double s = 0.5;
+double s = 0.1;
 int FAST_THRES = 10;
 
 namespace Mono_Slam
@@ -76,6 +76,9 @@ void MonoFrame::cameraPositionFlow()
     x = int(t_world.at<double>(0)) + TRAJECTORY_SIZE/2;
     z = int(t_world.at<double>(2)) + TOP_OFFSET;
 
+    //x = TRAJECTORY_SIZE - x;
+    z = TRAJECTORY_SIZE - z;
+
     cv::circle(draw, cv::Point(x, z), 1, CV_RGB(255,0,0), 1);
 
     cv::imshow("sequence", draw);   
@@ -112,6 +115,9 @@ void MonoFrame::pointcloudFlow()
             std::sqrt(std::pow(x,2) + std::pow(z,2)) >= PCL_DISTANCE_LOWER){
             x = x + int(t_world.at<double>(0)) + TRAJECTORY_SIZE/2;
             z = z + int(t_world.at<double>(2)) + TOP_OFFSET;
+
+            //x = TRAJECTORY_SIZE - x;
+            z = TRAJECTORY_SIZE - z;
             cv::circle(draw, cv::Point(x, z), 1, CV_RGB(255,255,255), 1);
         }
     }
