@@ -13,6 +13,7 @@ int main(int argc, char ** argv)
     //char image_name[200];
     cv::VideoCapture video(video_path.c_str());
     cv::Mat current_frame;
+    cv::Size size(IMAGE_WIDTH, IMAGE_HEIGHT);
     Mono_Slam::MonoFrame Frame;
 
     if (!video.isOpened()){
@@ -24,6 +25,7 @@ int main(int argc, char ** argv)
 
         if (current_frame.empty())
             break;
+        cv::resize(current_frame, current_frame, size);
 
         Frame(current_frame);
     }
