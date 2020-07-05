@@ -1,1 +1,1 @@
-./mono_slam /mnt/f/test_data/seq.mov
+./mono_slam /Users/aozhang/Desktop/seq.mov

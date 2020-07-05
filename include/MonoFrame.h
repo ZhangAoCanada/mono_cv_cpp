@@ -7,6 +7,8 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
+#include "opencv2/ximgproc/disparity_filter.hpp"
+#include "opencv2/ximgproc.hpp"
 
 #include <iostream>
 #include <vector>
@@ -96,10 +98,10 @@ protected:
     cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 64, 3, 
                                 8*3*std::pow(3,2), 32*3*std::pow(3,2),
                                 0, 0, 1, 10, 1, cv::StereoSGBM::MODE_HH);
-    // cv::Ptr<cv::StereoSGBM> right_matcher = cv::ximgproc::createRightMatcher(left_matcher);
-    // cv::Ptr<cv::ximgproc::DisparityWLSFilter> wls_filter = 
-    //                         cv::ximgproc::createDisparityWLSFilter(left_matcher);
-    
+    cv::Ptr<cv::StereoSGBM> right_matcher = cv::ximgproc::createRightMatcher(left_matcher);
+    //cv::Ptr<cv::ximgproc::DisparityWLSFilter> wls_filter = 
+                         //cv::ximgproc::createDisparityWLSFilter(left_matcher);
+
 };
 }
 

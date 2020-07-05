@@ -4,16 +4,15 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/aooooo/mono_cv_cpp/src/MONO.cpp" "/home/aooooo/mono_cv_cpp/build/CMakeFiles/mono_slam.dir/src/MONO.cpp.o"
-  "/home/aooooo/mono_cv_cpp/src/MonoFrame.cpp" "/home/aooooo/mono_cv_cpp/build/CMakeFiles/mono_slam.dir/src/MonoFrame.cpp.o"
+  "/Users/aozhang/Documents/mono_cv_cpp/src/MONO.cpp" "/Users/aozhang/Documents/mono_cv_cpp/build/CMakeFiles/mono_slam.dir/src/MONO.cpp.o"
+  "/Users/aozhang/Documents/mono_cv_cpp/src/MonoFrame.cpp" "/Users/aozhang/Documents/mono_cv_cpp/build/CMakeFiles/mono_slam.dir/src/MonoFrame.cpp.o"
   )
-set(CMAKE_CXX_COMPILER_ID "GNU")
+set(CMAKE_CXX_COMPILER_ID "AppleClang")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/usr/local/include"
-  "/usr/local/include/opencv"
   "../include"
+  "/usr/local/Cellar/opencv/4.3.0_5/include/opencv4"
   "/usr/local/include/eigen3"
   )
 
