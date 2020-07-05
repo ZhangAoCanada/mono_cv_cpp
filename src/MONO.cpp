@@ -27,7 +27,6 @@ int main(int argc, char ** argv)
             break;
 
         //cv::resize(current_frame, current_frame, size, 0.5, 0.5);
-        cout << current_frame.size() << endl;
 
         Frame(current_frame);
     }

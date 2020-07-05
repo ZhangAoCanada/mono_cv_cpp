@@ -25,10 +25,12 @@ namespace Mono_Slam
 #define TOP_OFFSET 100
 #define KEYPOINTS_NUM 3000
 #define MAX_TURN_ANGLE 3.141593/2
+#define FAST_THRES 10
+#define SCALE 0.1
 #define FORWARD_TRANSLATION_THRESHOLD 0.1
 
-#define KEYPOINTS_SHOW 10
-#define PCL_DISTANCE_UPPER 1000
+#define KEYPOINTS_SHOW 50
+#define PCL_DISTANCE_UPPER 50
 #define PCL_DISTANCE_LOWER 10
 
 class MonoFrame
@@ -42,6 +44,7 @@ protected:
     void monoFlow();
     void pointcloudFlow();
     void cameraPositionFlow();
+    void disparityFlow();
     void RMatToMaxAngles(cv::Mat & R);
     void featureDetection(cv::Mat image, std::vector<cv::Point2f> & points, 
                         std::vector<cv::Point2f> & points_show);
@@ -84,6 +87,19 @@ protected:
 
     cv::Mat draw;
 
+    // for disparity map
+    cv::Mat map1, map2;
+    cv::Mat prev_remap;
+    cv::Mat current_remap;
+    cv::Mat disparity;
+    
+    cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 64, 3, 
+                                8*3*std::pow(3,2), 32*3*std::pow(3,2),
+                                0, 0, 1, 10, 1, cv::StereoSGBM::MODE_HH);
+    // cv::Ptr<cv::StereoSGBM> right_matcher = cv::ximgproc::createRightMatcher(left_matcher);
+    // cv::Ptr<cv::ximgproc::DisparityWLSFilter> wls_filter = 
+    //                         cv::ximgproc::createDisparityWLSFilter(left_matcher);
+    
 };
 }
 

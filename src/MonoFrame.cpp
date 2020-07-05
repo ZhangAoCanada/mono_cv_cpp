@@ -1,13 +1,11 @@
 #include "MonoFrame.h"
 
 std::string CAMINTRIN = "../intrinsic.txt";
-double s = 0.1;
-int FAST_THRES = 10;
 
 namespace Mono_Slam
 {
 
-MonoFrame::MonoFrame():scale(s), camintrinsic_filename(CAMINTRIN), 
+MonoFrame::MonoFrame():scale(SCALE), camintrinsic_filename(CAMINTRIN), 
                     fast_threshold(FAST_THRES), nonmaxSuppression(true) 
 {
     // read camear intrinsic matrix
@@ -24,6 +22,7 @@ MonoFrame::MonoFrame():scale(s), camintrinsic_filename(CAMINTRIN),
 
     draw = cv::Mat::zeros(TRAJECTORY_SIZE, TRAJECTORY_SIZE, CV_8UC3);
     cv::namedWindow("image", cv::WINDOW_AUTOSIZE);
+    cv::namedWindow("disparity", cv::WINDOW_AUTOSIZE);
     cv::namedWindow("sequence", cv::WINDOW_AUTOSIZE);
 }
 
@@ -64,11 +63,32 @@ void MonoFrame::monoFlow()
     if ( t.at<double>(2) >= FORWARD_TRANSLATION_THRESHOLD && max_angle <= MAX_TURN_ANGLE) {
         if (prev_show_pnts.size() != 0 && current_show_pnts.size() != 0){
             pointcloudFlow();
+            disparityFlow();
         }
         cameraPositionFlow();
         prev_frame = current_frame.clone();
     }
     
+}
+
+void MonoFrame::disparityFlow()
+{
+    std::vector<double> distort_coef;
+    cv::initUndistortRectifyMap(camera_matrix, distort_coef, R, camera_matrix, 
+                            current_frame_gray.size(), CV_32FC1, map1, map2);
+
+    cv::remap(prev_frame_gray, prev_remap, map1, map2, 0);
+    cv::resize(prev_remap, prev_remap, cv::Size(640, 480));
+    cv::resize(current_frame_gray, current_remap, cv::Size(640, 480));
+
+    // cv::remap(current_frame_gray, current_remap, map1, map2, 0);
+    // cv::resize(prev_frame_gray, prev_remap, cv::Size(640, 480));
+    // cv::resize(current_remap, current_remap, cv::Size(640, 480));
+
+    left_matcher->compute(current_remap, prev_remap, disparity);
+
+    cv::normalize(disparity, disparity, 0, 255, cv::NORM_MINMAX, CV_8U);
+    cv::imshow("disparity", disparity);
 }
 
 void MonoFrame::cameraPositionFlow()
@@ -84,7 +104,8 @@ void MonoFrame::cameraPositionFlow()
 
     cv::circle(draw, cv::Point(x, z), 1, CV_RGB(255,0,0), 1);
 
-    cv::imshow("sequence", draw);   
+    cv::imwrite("./trajectory.png", draw);
+    cv::imshow("sequence", draw);
 }
 
 void MonoFrame::pointcloudFlow()
