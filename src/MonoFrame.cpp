@@ -78,16 +78,16 @@ void MonoFrame::disparityFlow()
                             current_frame_gray.size(), CV_32FC1, map1, map2);
 
     cv::remap(prev_frame_gray, prev_remap, map1, map2, 0);
-    cv::resize(prev_remap, prev_remap, cv::Size(640, 480));
-    cv::resize(current_frame_gray, current_remap, cv::Size(640, 480));
-
-    // cv::remap(current_frame_gray, current_remap, map1, map2, 0);
-    // cv::resize(prev_frame_gray, prev_remap, cv::Size(640, 480));
-    // cv::resize(current_remap, current_remap, cv::Size(640, 480));
+    cv::resize(prev_remap, prev_remap, cv::Size(640, 360));
+    cv::resize(current_frame_gray, current_remap, cv::Size(640, 360));
 
     left_matcher->compute(current_remap, prev_remap, disparity);
 
-    cv::normalize(disparity, disparity, 0, 255, cv::NORM_MINMAX, CV_8U);
+    cv::normalize(disparity, disparity, 10, 255, cv::NORM_MINMAX, CV_8U);
+    cv::hconcat(disparity, current_remap, disparity);
+
+    cv::imwrite(("./disparity_maps/" + std::to_string(count) + ".png").c_str(), disparity);
+    count ++;
     cv::imshow("disparity", disparity);
 }
 
