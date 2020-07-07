@@ -7,8 +7,8 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
-// #include "opencv2/ximgproc/disparity_filter.hpp"
-// #include "opencv2/ximgproc.hpp"
+ #include "opencv2/ximgproc/disparity_filter.hpp"
+ #include "opencv2/ximgproc.hpp"
 
 #include <iostream>
 #include <vector>
@@ -93,16 +93,20 @@ protected:
     cv::Mat map1, map2;
     cv::Mat prev_remap;
     cv::Mat current_remap;
+    cv::Mat left_disparity;
+    cv::Mat right_disparity;
     cv::Mat disparity;
     int win_size = 3;
     int count = 0;
+    double lambda = 8000.0;
+    double sigma = 1.2;
     
-    cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 32, win_size, 
+    cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 64, win_size, 
                                 8*3*std::pow(win_size,2), 32*3*std::pow(win_size,2),
                                 0, 0, 0, 0, 0, cv::StereoSGBM::MODE_HH);
-    // cv::Ptr<cv::StereoSGBM> right_matcher = cv::ximgproc::createRightMatcher(left_matcher);
-    // cv::Ptr<cv::ximgproc::DisparityWLSFilter> wls_filter = 
-    //                      cv::ximgproc::createDisparityWLSFilter(left_matcher);
+    cv::Ptr<cv::StereoMatcher> right_matcher = cv::ximgproc::createRightMatcher(left_matcher);
+    cv::Ptr<cv::ximgproc::DisparityWLSFilter> wls_filter = 
+                  cv::ximgproc::createDisparityWLSFilter(left_matcher);
 
 };
 }

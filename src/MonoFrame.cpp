@@ -15,6 +15,10 @@ MonoFrame::MonoFrame():scale(SCALE), camintrinsic_filename(CAMINTRIN),
     // buildng FAST detector 
     detector = cv::FastFeatureDetector::create(fast_threshold, nonmaxSuppression);
 
+    // for disparity filter
+    wls_filter->setLambda(lambda);
+    wls_filter->setSigmaColor(sigma);
+
     if (!R_world.data){
         R_world = cv::Mat::eye(3, 3, CV_64FC1);
         t_world = cv::Mat::eye(3, 1, CV_64FC1);
@@ -81,9 +85,15 @@ void MonoFrame::disparityFlow()
     cv::resize(prev_remap, prev_remap, cv::Size(640, 360));
     cv::resize(current_frame_gray, current_remap, cv::Size(640, 360));
 
-    left_matcher->compute(current_remap, prev_remap, disparity);
+    //cv::remap(current_frame_gray, current_remap, map1, map2, 0);
+    //cv::resize(current_remap, current_remap, cv::Size(640, 360));
+    //cv::resize(prev_frame_gray, prev_remap, cv::Size(640, 360));
 
-    cv::normalize(disparity, disparity, 10, 255, cv::NORM_MINMAX, CV_8U);
+    left_matcher->compute(current_remap, prev_remap, left_disparity);
+    right_matcher->compute(prev_remap, current_remap, right_disparity);
+    wls_filter->filter(left_disparity, current_remap, disparity, right_disparity);
+
+    cv::normalize(disparity, disparity, 0, 255, cv::NORM_MINMAX, CV_8U);
     cv::hconcat(disparity, current_remap, disparity);
 
     cv::imwrite(("./disparity_maps/" + std::to_string(count) + ".png").c_str(), disparity);
